@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة أهداف المناديب - لوحة المشرفين</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans Arabic', sans-serif;
+            background-color: #f8fafc;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .gradient-header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="antialiased text-gray-800">
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <header class="gradient-header text-white p-8 rounded-3xl shadow-2xl mb-8 relative overflow-hidden">
+            <div class="relative z-10">
+                <h1 class="text-3xl md:text-4xl font-bold mb-2">لوحة تحكم المشرفين</h1>
+                <p class="text-blue-100 text-lg opacity-90">نظام إدارة وتنظيم روابط الأهداف للمناديب</p>
+            </div>
+            <div class="absolute -top-10 -left-10 w-40 h-40 bg-white opacity-10 rounded-full"></div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="md:col-span-2 relative group">
+                <input type="text" id="searchInput" 
+                       placeholder="ابحث عن مندوب، رقم، أو مشرف..." 
+                       class="w-full h-full pr-12 pl-4 py-4 rounded-2xl border-none shadow-sm focus:ring-4 focus:ring-blue-500/20 outline-none transition-all text-lg"
+                >
+                <div class="absolute right-4 top-1/2 -translate-y-1/2 text-blue-500 group-focus-within:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="flex gap-4">
+                <div class="flex-1 bg-white p-4 rounded-2xl shadow-sm border border-blue-50 text-center">
+                    <span class="block text-sm text-gray-500 mb-1">إجمالي المناديب</span>
+                    <span id="totalCount" class="text-2xl font-bold text-blue-600">0</span>
+                </div>
+                <div class="flex-1 bg-white p-4 rounded-2xl shadow-sm border border-green-50 text-center">
+                    <span class="block text-sm text-gray-500 mb-1">المناطق النشطة</span>
+                    <span id="areaCount" class="text-2xl font-bold text-green-600">0</span>
+                </div>
+            </div>
+        </div>
+
+        <main id="mainContainer" class="space-y-10 min-h-[400px]">
+            </main>
+
+        <footer class="mt-16 text-center border-t border-gray-200 pt-8 pb-10">
+            <p class="text-gray-400">نظام الإدارة الرقمي للمشرفين &copy; 2026</p>
+            <p class="text-xs text-gray-300 mt-1 uppercase tracking-widest">Designed for Abdullah Atieh</p>
+        </footer>
+    </div>
+
+    <script>
+        // البيانات المحدثة يا عبد الله
+        const rawData = [
+           
+            {
+                region: "المنطقة 022",
+                supervisor: "يوسف النجار",
+                mainLink: "https://drive.google.com/open?id=1WLQLgZMj3jcUQU8IlUAesoCKQ1xujFGW&usp=drive_fs",
+                agents: [
+                    { name: "اسامة خليل محمد عكاوي", id: "1014", link: "https://drive.google.com/open?id=11LK9-qX-EhRsnsrb7ml5JQrVQNVCU5X7&usp=drive_fs" },
+                    { name: "نواف امجد نواف العطيوي", id: "1003", link: "https://drive.google.com/open?id=1Wl9H-wPDjwzjp-KN73dX7WJPlu4l7qPY&usp=drive_fs" },
+                    { name: "اياد ناصر حلمي ابو غربية", id: "1006", link: "https://drive.google.com/open?id=1EVWjc_GJgM5u0ToauMfMCMfUbzSCIX69&usp=drive_fs" },
+                    { name: "مؤيد هيثم عبد الكريم الزريقات", id: "1002", link: "https://drive.google.com/open?id=1exhFYMfxADePSAWGkZ1Nq4nzqm5Lz7OC&usp=drive_fs" },
+                    { name: "خالد يسرى صالح الشرباتي", id: "1052", link: "https://drive.google.com/open?id=16beMZXnBfftGm-975ylmRp5W1ZUMZq0x&usp=drive_fs" },
+                    { name: "معتصم فايز صالح الكتوت", id: "1058", link: "https://drive.google.com/open?id=1UyXqdSXd7HHETloZb2lhieF3iNaFom1b&usp=drive_fs" },
+                    { name: "زيد محمد عماد غازي البنا", id: "1013", link: "https://drive.google.com/open?id=1oglP1NemHzoW4hxqT-jL5WrnuC5yYF95&usp=drive_fs" },
+                    { name: "عبد الله محمود عثمان الحمزه", id: "1049", link: "https://drive.google.com/open?id=1P9hq6VWxRsT1SSkxbmIdctQ-Ng3IXOlF&usp=drive_fs" },
+                    { name: "حمزه فوزي نمر حسنين", id: "1059", link: "https://drive.google.com/open?id=1QCGGHktt-rPADq6jWxIol3jPLsBEL1eX&usp=drive_fs" }
+                ]
+            }
+        ];
+
+        const mainContainer = document.getElementById('mainContainer');
+        const searchInput = document.getElementById('searchInput');
+        const totalCountEl = document.getElementById('totalCount');
+        const areaCountEl = document.getElementById('areaCount');
+
+        function renderData(filter = "") {
+            mainContainer.innerHTML = "";
+            let totalAgents = 0;
+            let totalAreas = 0;
+
+            rawData.forEach(area => {
+                const filteredAgents = area.agents.filter(agent => 
+                    agent.name.includes(filter) || 
+                    agent.id.includes(filter) || 
+                    area.supervisor.includes(filter) ||
+                    area.region.includes(filter)
+                );
+
+                if (filteredAgents.length > 0 || area.supervisor.includes(filter) || area.region.includes(filter)) {
+                    totalAreas++;
+                    totalAgents += filteredAgents.length;
+
+                    const areaSection = document.createElement('div');
+                    areaSection.className = "bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 duration-300";
+                    
+                    areaSection.innerHTML = `
+                        <div class="bg-gradient-to-r from-gray-50 to-white p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <span class="text-xs font-bold text-blue-500 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full mb-2 inline-block italic">مجلد المنطقة</span>
+                                <h2 class="text-2xl font-bold text-gray-800">${area.region}</h2>
+                                <p class="text-gray-500 flex items-center gap-2 mt-1 font-medium">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                    </svg>
+                                    المشرف المسئول: <span class="text-blue-700">${area.supervisor}</span>
+                                </p>
+                            </div>
+                            <a href="${area.mainLink}" target="_blank" class="w-full md:w-auto bg-blue-600 hover:bg-blue-800 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg shadow-blue-200 flex items-center justify-center gap-2 group">
+                                <span>عرض ملفات المنطقة</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:translate-x-[-4px] transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </a>
+                        </div>
+                        <div class="p-0 custom-scrollbar overflow-x-auto">
+                            <table class="w-full text-right">
+                                <thead class="bg-gray-50 text-gray-500 text-sm border-b">
+                                    <tr>
+                                        <th class="py-4 px-6 font-semibold">رقم المندوب</th>
+                                        <th class="py-4 px-6 font-semibold">الاسم بالكامل</th>
+                                        <th class="py-4 px-6 font-semibold text-center">الروابط</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-50">
+                                    ${filteredAgents.map(agent => `
+                                        <tr class="hover:bg-blue-50/50 transition-colors group">
+                                            <td class="py-5 px-6 font-mono text-gray-400 group-hover:text-blue-600 transition-colors">#${agent.id}</td>
+                                            <td class="py-5 px-6">
+                                                <span class="font-bold text-gray-700 group-hover:text-gray-900">${agent.name}</span>
+                                            </td>
+                                            <td class="py-5 px-6 text-center text-sm">
+                                                <a href="${agent.link}" target="_blank" class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-bold bg-blue-50 px-4 py-2 rounded-lg transition-all border border-blue-100">
+                                                    عرض ملف الأهداف
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    mainContainer.appendChild(areaSection);
+                }
+            });
+
+            totalCountEl.textContent = totalAgents;
+            areaCountEl.textContent = totalAreas;
+            
+            if (totalAreas === 0) {
+                mainContainer.innerHTML = `
+                    <div class="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-300">
+                        <div class="text-gray-300 mb-4 flex justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 17.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <p class="text-xl text-gray-500">لا توجد نتائج تطابق بحثك يا عبد الله</p>
+                        <button onclick="resetSearch()" class="mt-4 text-blue-600 hover:underline">عرض جميع البيانات</button>
+                    </div>`;
+            }
+        }
+
+        function resetSearch() {
+            searchInput.value = "";
+            renderData();
+        }
+
+        searchInput.addEventListener('input', (e) => renderData(e.target.value));
+        renderData();
+    </script>
+</body>
+</html>
